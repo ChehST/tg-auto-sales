@@ -162,8 +162,10 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(os.getenv('TOKEN_BOT')).build()
     
     start_handler = CommandHandler('start', command_start)
-    start_handler = CommandHandler('avaliable', command_avaliable)
+    avaliable_handler = CommandHandler('avaliable', command_avaliable)
+    request_handler = CommandHandler('request', command_request)
     application.add_handler(start_handler)
+    application.add_handler(avaliable_handler)
     application.add_handler(request_handler)
     application.add_handler(CallbackQueryHandler(button_callback))
     application.run_polling()
