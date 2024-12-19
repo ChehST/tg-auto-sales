@@ -2,7 +2,7 @@ import os
 import logging
 import time
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
 from dotenv import load_dotenv
 
@@ -53,6 +53,20 @@ async def command_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.sendVideoNote(chat_id=update.effective_chat.id,
                                 video_note=open('media/video1.mp4', 'rb'),
                                 reply_markup=reply_markup)
+
+async def command_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    button = [[KeyboardButton("Получить расчёт",request_contact=True)]]
+    reply_markup = ReplyKeyboardMarkup(button)
+
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+                                   text="Типа диалог 1/2")
+    time.sleep(3)
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+                                   text="Типа диалог 2/2")
+    time.sleep(3)
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+                                   text="Заявка заполнена, нажмите кнопку ниже 👇",
+                                   reply_markup=reply_markup)
 
 async def command_avaliable(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -150,5 +164,6 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', command_start)
     start_handler = CommandHandler('avaliable', command_avaliable)
     application.add_handler(start_handler)
+    application.add_handler(request_handler)
     application.add_handler(CallbackQueryHandler(button_callback))
     application.run_polling()
