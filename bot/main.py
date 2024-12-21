@@ -150,7 +150,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if query.data == 'menu':
         await render_menu(update, context)
     if query.data == 'request':
-        pass
+        await command_request(update, context)
     if query.data == 'selection':
         pass
     if query.data == 'avaliable':
