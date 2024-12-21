@@ -55,8 +55,9 @@ async def command_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                 reply_markup=reply_markup)
 
 async def command_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     button = [[KeyboardButton("Получить расчёт",request_contact=True)]]
-    reply_markup = ReplyKeyboardMarkup(button)
+    reply_markup = ReplyKeyboardMarkup(button,resize_keyboard=True)
 
     await context.bot.send_message(chat_id=update.effective_chat.id,
                                    text="Типа диалог 1/2")
