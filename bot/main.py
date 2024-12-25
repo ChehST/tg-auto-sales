@@ -12,6 +12,7 @@ from telegram.ext import (
     CallbackQueryHandler
 )
 from dotenv import load_dotenv
+import csv
 
 
 # Load environment variables from .env file
@@ -207,6 +208,11 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
             car_budget = context.user_data.get('car_budget')
             lead_category = context.user_data.get('lead_category')
 
+            # Save data to CSV file that will be used later
+            # by sellers
+            with open('contacts.csv', mode='a', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerow([lead_category, car_model, car_budget, phone_number])
 
             # Debug output, it might be good to create ticket to add
             # flag DEBUG_MODE to print this info into log file instead of console
