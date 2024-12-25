@@ -112,6 +112,28 @@ async def command_avaliable(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                  reply_markup=reply_markup
     )
 
+async def command_qa(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    keyboard = []
+    keyboard.append([InlineKeyboardButton("1️⃣", callback_data="faq_1"),
+                     InlineKeyboardButton("2️⃣", callback_data="faq_2"),
+                     InlineKeyboardButton("3️⃣", callback_data="faq_3")])
+    keyboard.append([InlineKeyboardButton("4️⃣", callback_data="faq_4"),
+                     InlineKeyboardButton("5️⃣", callback_data="faq_5"),
+                     InlineKeyboardButton("6️⃣", callback_data="faq_6")])
+    
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await context.bot.send_message(chat_id=update.effective_chat.id,
+                                   text="Отлично!\n\n" + \
+                                        "Выберите вопрос, который интересует и Илья отправит вам персональный ответ.\n\n" + \
+                                        "1️⃣ Какие гарантии предоставляете?\n" + \
+                                        "2️⃣ Как я могу быть уверен, что меня не обманут?\n" + \
+                                        "3️⃣ Какие есть риски при покупке автомобиля из-за рубежа?\n" + \
+                                        "4️⃣ Из чего складывается стоимость из из Кореи, Китая и Японии?\n" + \
+                                        "5️⃣ Кто осматриваем автомобили, если вы находитесь в России?\n" + \
+                                        "6️⃣ Страхуется ли автомобиль во время доставки?\n\n" + \
+                                        "Нажмите на цифру 👇",
+                                   reply_markup=reply_markup)
 async def render_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = []
@@ -236,12 +258,19 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     with an invite link if the data matches 'invite_link'.
     """
     
+    plate_keyboard = []
+    plate_keyboard.append([InlineKeyboardButton("Остались вопросы?", callback_data="qa")])
+    plate_keyboard.append([InlineKeyboardButton("Расчитать стоимость авто", callback_data="request")])
+    reply_plate_markup = InlineKeyboardMarkup(plate_keyboard)
+
     query = update.callback_query
     await query.answer()
     if query.data == 'menu':
         await render_menu(update, context)
     if query.data == 'request':
         await command_request(update, context)
+    if query.data == "qa":
+        await command_qa(update, context)
     if query.data == 'selection':
         pass
     if query.data == 'avaliable':
@@ -250,6 +279,37 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         pass
     if query.data in ['request_hot_lead', 'request_warm_lead']:
         await handle_order(update, context)
+    if query.data == "faq_1":
+        await context.bot.send_message(chat_id=query.message.chat_id,
+                                       text="Мы предоставляем гарантию на все наши услуги и сделки.\n\n" + \
+                                            "Если вы столкнетесь с проблемой, связанным с покупкой автомобиля,\
+                                                мы будем рады помочь вам решить ее.",
+                                       reply_markup=reply_plate_markup)
+    if query.data == "faq_2":
+        await context.bot.send_message(chat_id=query.message.chat_id,
+                                       text="Мы используем различные методики проверки и осмотра автомобилей,\n\n" + \
+                                            "чтобы гарантировать, что они соответствуют высоким стандартам качества.",
+                                       reply_markup=reply_plate_markup)
+    if query.data == "faq_3":
+        await context.bot.send_message(chat_id=query.message.chat_id,
+                                       text="Мы понимаем, что покупка автомобиля из-за рубежа может быть рискована.\n\n" + \
+                                            "Поэтому мы предлагаем различные гарантии и страховки, чтобы защитить ваши интересы.",
+                                       reply_markup=reply_plate_markup)
+    if query.data == "faq_4":
+        await context.bot.send_message(chat_id=query.message.chat_id,
+                                       text="Мы берём во внимание все факторы, влияющие на стоимость автомобиля,\n\n" + \
+                                            "включая его марку, модель, год выпуска и другие характеристики.",
+                                       reply_markup=reply_plate_markup)
+    if query.data == "faq_5":
+        await context.bot.send_message(chat_id=query.message.chat_id,
+                                       text="Мы работаем с экспертами по импорту автомобилей,\n\n" + \
+                                            "которые имеют опыт работы с авто из разных стран.",
+                                       reply_markup=reply_plate_markup)
+    if query.data == "faq_6":
+        await context.bot.send_message(chat_id=query.message.chat_id,
+                                       text="Мы страхуем автомобили во время доставки,\n\n" + \
+                                            "чтобы защитить ваши интересы в случае любого несчастного случая.",
+                                       reply_markup=reply_plate_markup)
     
 
 if __name__ == '__main__':
@@ -258,11 +318,13 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', command_start)
     avaliable_handler = CommandHandler('avaliable', command_avaliable)
     request_handler = CommandHandler('request', command_request)
+    qa_handler = CommandHandler('qa', command_qa)
     text_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, text_input_handler)
     contact_handler = MessageHandler(filters.CONTACT, contact_input_handler)
     application.add_handler(contact_handler)
     application.add_handler(text_handler)
     application.add_handler(start_handler)
+    application.add_handler(qa_handler)
     application.add_handler(avaliable_handler)
     application.add_handler(request_handler)
     application.add_handler(CallbackQueryHandler(button_callback))
