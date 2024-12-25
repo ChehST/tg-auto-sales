@@ -3,8 +3,16 @@ import logging
 import time
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackQueryHandler
+from telegram.ext import (
+    filters,
+    MessageHandler,
+    ApplicationBuilder,
+    ContextTypes,
+    CommandHandler,
+    CallbackQueryHandler
+)
 from dotenv import load_dotenv
+import csv
 
 
 # Load environment variables from .env file
@@ -51,22 +59,27 @@ async def command_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     time.sleep(3)
 
     await context.bot.sendVideoNote(chat_id=update.effective_chat.id,
-                                video_note=open('media/video1.mp4', 'rb'),
+                                video_note=open('media/video3.mp4', 'rb'),
                                 reply_markup=reply_markup)
 
 async def command_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    button = [[KeyboardButton("Получить расчёт",request_contact=True)]]
-    reply_markup = ReplyKeyboardMarkup(button,resize_keyboard=True)
+    keyboard = [
+        [InlineKeyboardButton("Готов к покупке", callback_data="request_hot_lead")],
+        [InlineKeyboardButton("Присматриваюсь", callback_data="request_warm_lead")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Типа диалог 1/2")
-    time.sleep(3)
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Типа диалог 2/2")
-    time.sleep(3)
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Заявка заполнена, нажмите кнопку ниже 👇",
+                                   text="Сейчас наша компания ощущает огромный спрос на автомобили.\n\n" + \
+                                        "✅ Готовы к покупке в течение 30 дней? Направим вас сразу\
+                                        к эксперту по импорту, чтобы ускорить процесс.\n\n" + \
+                                        "👀 Ещё присматриваетесь? Мы подготовим предложение в \
+                                              течение 2-3 дней, чтобы вы могли всё обдумать.\n\n" + \
+                                        "❗️Пожалуйста, выбирайте внимательно. Это поможет снизить нагрузку, направить\
+                                            запрос в нужный отдел и обеспечить вам быстрый расчёт и лучшее обслуживание.\n\n" + \
+                                        "🗨️ Вы готовы к покупке или присматриваетесь?\n\n" + \
+                                        "Жмите на кнопку ниже 👇",
                                    reply_markup=reply_markup)
 
 async def command_avaliable(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -110,9 +123,9 @@ async def render_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Issue - if user have restriction to recieve video and audio notes
     # then it will not be sent and next send_message too. Need to catch
     # the exceptions.
-    # await context.bot.sendVideoNote(chat_id=update.effective_chat.id,
-    #                             video_note=open('media/video2.mp4', 'rb')
-    #                             )
+    await context.bot.sendVideoNote(chat_id=update.effective_chat.id,
+                                video_note=open('media/video4.mp4', 'rb')
+                                )
 
     time.sleep(1)
 
@@ -132,6 +145,84 @@ async def render_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                         "Жмите кнопку ниже 👇",
                                     reply_markup=reply_markup
                                     )
+
+async def handle_order(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    context.user_data['lead_category'] = query.data
+    # Set user awaiting instance
+    context.user_data['state'] = 'awaiting_car_model'
+    await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="[1/3] Какие марки и модели авто вас интересуют?\n\n" + \
+                "Напишите ниже в произвольной форме 👇"
+        )
+
+
+
+async def text_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    state = context.user_data.get('state')
+
+    button = [[KeyboardButton("✅Получить расчёт",request_contact=True)]]
+    reply_markup = ReplyKeyboardMarkup(button,resize_keyboard=True)
+
+    if state == 'awaiting_car_model':
+        car_model = update.message.text
+        context.user_data['car_model'] = car_model
+        context.user_data['state'] = 'awaiting_car_budget'  # Переход к следующему состоянию
+
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="[2/3] На какой бюджет вы рассчитываете?\n\n" + \
+                "Пожалуйста, напишите ниже в числовом формате, в рублях.\n\n" + \
+                "⚠️ Не пишите слова или знаки валют, только числа.\n" + \
+                "(примеры: 2000000, 3500000, 4300000)"
+        )
+
+    elif state == 'awaiting_car_budget':
+        # Обработка следующего этапа
+
+        car_budget = update.message.text
+        context.user_data['car_budget'] = car_budget
+        context.user_data['state'] = 'awaiting_phone_number'  # Завершение последовательности
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="😊 Остался последний шаг!\n\n" + \
+                    'Нажмите кнопку "Получить расчёт",' + \
+                    ' и мы отправим вам стоимость в мессенджеры или перезвоним.\n\n' + \
+                    "Хотите написать сами?\n"
+                    "👉 Связаться с экспертом:",
+                    reply_markup=reply_markup
+        )
+
+async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if context.user_data.get('state') == 'awaiting_phone_number':
+        contact = update.message.contact
+        if contact:
+            phone_number = contact.phone_number
+            context.user_data['phone'] = phone_number
+
+            # Send final message with all collected information
+            car_model = context.user_data.get('car_model')
+            car_budget = context.user_data.get('car_budget')
+            lead_category = context.user_data.get('lead_category')
+
+            # Save data to CSV file that will be used later
+            # by sellers
+            with open('contacts.csv', mode='a', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                writer.writerow([lead_category, car_model, car_budget, phone_number])
+
+            # Debug output, it might be good to create ticket to add
+            # flag DEBUG_MODE to print this info into log file instead of console
+            # or just remove it after testing phase
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"Клиент категории {lead_category}.Вы заказали расчет стоимости авто {car_model} на бюджет {car_budget}. Ваш номер телефона: {phone_number}"
+            )
+
+            context.user_data['state'] = None
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
@@ -157,6 +248,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await command_avaliable(update, context)
     if query.data == 'link_to_your_channel':
         pass
+    if query.data in ['request_hot_lead', 'request_warm_lead']:
+        await handle_order(update, context)
     
 
 if __name__ == '__main__':
@@ -165,6 +258,10 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', command_start)
     avaliable_handler = CommandHandler('avaliable', command_avaliable)
     request_handler = CommandHandler('request', command_request)
+    text_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, text_input_handler)
+    contact_handler = MessageHandler(filters.CONTACT, contact_input_handler)
+    application.add_handler(contact_handler)
+    application.add_handler(text_handler)
     application.add_handler(start_handler)
     application.add_handler(avaliable_handler)
     application.add_handler(request_handler)
