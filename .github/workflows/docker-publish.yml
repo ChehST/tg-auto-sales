@@ -9,6 +9,7 @@ on:
 jobs:
   docker-publish:
     runs-on: ubuntu-latest
+    environment: test-deployment
     steps:
       -
         name: Login to Docker Hub
