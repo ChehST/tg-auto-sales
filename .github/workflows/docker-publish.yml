@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 name: ci
 
 on:
@@ -29,4 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: user/app:latest
+          tags: chehst/tg-bot-develop:latest
