@@ -315,6 +315,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
 
 if __name__ == '__main__':
+    
     application = ApplicationBuilder().token(os.getenv('TOKEN_BOT')).build()
     
     start_handler = CommandHandler('start', command_start)
