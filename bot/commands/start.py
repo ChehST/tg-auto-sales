@@ -3,36 +3,19 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext, CommandHandler, ConversationHandler, MessageHandler, filters, ContextTypes
 import time
 
+from constants.messages import START_GREETING_MESSAGE
+
 async def command_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = []
     keyboard.append([InlineKeyboardButton("Продолжить", callback_data="menu")])
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    first_name = update.effective_chat.first_name
+
     await context.bot.send_photo(chat_id=update.effective_chat.id,
                                  photo=open('media/team.png', 'rb'),
-                                 caption="👋 Привет, " + update.effective_chat.first_name + "!" + \
-                                         "Это бот компании АвтоНаходка.\n\n"
-
-                                         "🚗 Мы помогаем приобрести новые и поддержанные автомобили из Китая, \
-                                            Кореи и Японии, сэкономить до 2 000 000 ₽ и получить их за 15-45 дней!\n\n" + \
-
-                                         "Далее расскажем, почему авто из Азии в лучшем состоянии, \
-                                            а их покупка - выгодна и безопасна.\n\n"
-
-                                         "⚠️ Чтобы получить максимальную пользу от бота, \
-                                            выбирайте подходящие варианты ответов, нажимая на соответствующие кнопки.\n\n" + \
-
-                                         "Важно❗\n" + \
-                                         "Выбор можно сделать только один раз.\
-                                            Пожалуйста выбирайте внимательно, так как после нажатия кнопки \
-                                            изменить его не получится.\n\n" + \
-
-                                         "❌ Обратите внимание: здесь не ведутся диалоги. \
-                                            Чтобы определить, как мы можем помочь и к какому \
-                                            специалисту вас направить, ответьте на вопросы бота.\n\n" + \
-
-                                         "Жмите на кнопку ниже 👇",
+                                 caption=START_GREETING_MESSAGE.format(first_name=first_name),
                                  reply_markup=reply_markup )
 
     time.sleep(3)

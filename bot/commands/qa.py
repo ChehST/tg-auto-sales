@@ -3,6 +3,7 @@ from telegram import (ReplyKeyboardRemove, ReplyKeyboardMarkup,
                       InlineKeyboardButton, InlineKeyboardMarkup,
                       Update)
 from telegram.ext import CommandHandler, MessageHandler, ContextTypes
+from constants.messages import QA_MESSAGE
 
 
 async def command_qa(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -17,13 +18,5 @@ async def command_qa(update: Update, context: ContextTypes.DEFAULT_TYPE):
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Отлично!\n\n" + \
-                                        "Выберите вопрос, который интересует и Илья отправит вам персональный ответ.\n\n" + \
-                                        "1️⃣ Какие гарантии предоставляете?\n" + \
-                                        "2️⃣ Как я могу быть уверен, что меня не обманут?\n" + \
-                                        "3️⃣ Какие есть риски при покупке автомобиля из-за рубежа?\n" + \
-                                        "4️⃣ Из чего складывается стоимость из из Кореи, Китая и Японии?\n" + \
-                                        "5️⃣ Кто осматриваем автомобили, если вы находитесь в России?\n" + \
-                                        "6️⃣ Страхуется ли автомобиль во время доставки?\n\n" + \
-                                        "Нажмите на цифру 👇",
+                                   text=QA_MESSAGE,
                                    reply_markup=reply_markup)
