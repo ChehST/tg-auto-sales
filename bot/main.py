@@ -14,6 +14,8 @@ from telegram.ext import (
 from dotenv import load_dotenv
 import csv
 
+from commands import *
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -65,78 +67,7 @@ async def command_start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         logging.error(f"Error sending video note: {e}")
 
-async def command_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    keyboard = [
-        [InlineKeyboardButton("Готов к покупке", callback_data="request_hot_lead")],
-        [InlineKeyboardButton("Присматриваюсь", callback_data="request_warm_lead")]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Сейчас наша компания ощущает огромный спрос на автомобили.\n\n" + \
-                                        "✅ Готовы к покупке в течение 30 дней? Направим вас сразу\
-                                        к эксперту по импорту, чтобы ускорить процесс.\n\n" + \
-                                        "👀 Ещё присматриваетесь? Мы подготовим предложение в \
-                                              течение 2-3 дней, чтобы вы могли всё обдумать.\n\n" + \
-                                        "❗️Пожалуйста, выбирайте внимательно. Это поможет снизить нагрузку, направить\
-                                            запрос в нужный отдел и обеспечить вам быстрый расчёт и лучшее обслуживание.\n\n" + \
-                                        "🗨️ Вы готовы к покупке или присматриваетесь?\n\n" + \
-                                        "Жмите на кнопку ниже 👇",
-                                   reply_markup=reply_markup)
-
-async def command_avaliable(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    keyboard = []
-    keyboard.append([InlineKeyboardButton("Авто в наличии", callback_data="link_to_your_channel")])
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await context.bot.send_photo(chat_id=update.effective_chat.id,
-                                 photo=open('media/image2.jpg', 'rb'),
-                                 caption="Наш Telegram-канал с автомобилями, уже \
-                                      проверенными и готовыми к покупке!\n\n" + \
-
-                                    "❗️Все авто в наличии, доставка в РФ - до 30 дней.\n"+\
-                                    "🔥 Экономьте до 2 000 000 ₽ от рыночной стоимости!\n\n" + \
-
-                                    "Ссылка на канал:\n" + \
-                                    "👉 https://linktoyourchanel\n\n" + \
-
-                                    "Что вас ждёт:\n" +\
-                                    "▪️ Новые авто из Китая по ценам производителя\n" + \
-                                    "▪️ Поддержанные авто из Китая и Кореи с полным осмотром\n\n" + \
-
-
-                                    "За их состояние и точность описания мы отвечаем лично!\n\n" + \
-
-                                    "Подписывайтесь, чтобы первыми видеть лучшие предложения!\n\n" + \
-
-                                    '👉 Нажмите на кнопку "Авто в наличии"',
-                                 reply_markup=reply_markup
-    )
-
-async def command_qa(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = []
-    keyboard.append([InlineKeyboardButton("1️⃣", callback_data="faq_1"),
-                     InlineKeyboardButton("2️⃣", callback_data="faq_2"),
-                     InlineKeyboardButton("3️⃣", callback_data="faq_3")])
-    keyboard.append([InlineKeyboardButton("4️⃣", callback_data="faq_4"),
-                     InlineKeyboardButton("5️⃣", callback_data="faq_5"),
-                     InlineKeyboardButton("6️⃣", callback_data="faq_6")])
-    
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    await context.bot.send_message(chat_id=update.effective_chat.id,
-                                   text="Отлично!\n\n" + \
-                                        "Выберите вопрос, который интересует и Илья отправит вам персональный ответ.\n\n" + \
-                                        "1️⃣ Какие гарантии предоставляете?\n" + \
-                                        "2️⃣ Как я могу быть уверен, что меня не обманут?\n" + \
-                                        "3️⃣ Какие есть риски при покупке автомобиля из-за рубежа?\n" + \
-                                        "4️⃣ Из чего складывается стоимость из из Кореи, Китая и Японии?\n" + \
-                                        "5️⃣ Кто осматриваем автомобили, если вы находитесь в России?\n" + \
-                                        "6️⃣ Страхуется ли автомобиль во время доставки?\n\n" + \
-                                        "Нажмите на цифру 👇",
-                                   reply_markup=reply_markup)
 async def render_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = []
