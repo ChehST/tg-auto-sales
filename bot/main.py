@@ -14,11 +14,12 @@ from telegram.ext import (
 from dotenv import load_dotenv
 import csv
 
-from commands import *
-
-
 # Load environment variables from .env file
 load_dotenv()
+
+from commands import *
+from config import ADMIN
+
 
 
 logging.basicConfig(
@@ -76,6 +77,21 @@ async def text_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
                     "👉 Связаться с экспертом:",
                     reply_markup=reply_markup
         )
+    
+    if state == 'awaiting_manager_id':
+        try:
+            manager_id = int(update.message.text)
+            context.bot_data['manager_id'] = manager_id
+            context.user_data['state'] = None  # Сбрасываем состояние
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=f"ID менеджера успешно установлен: {manager_id}"
+            )
+        except ValueError:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="Ошибка: Пожалуйста, введите корректное целое число."
+            )
 
 async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if context.user_data.get('state') == 'awaiting_phone_number':
@@ -89,6 +105,26 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
             car_budget = context.user_data.get('car_budget')
             lead_category = context.user_data.get('lead_category')
 
+
+            # Получаем ID менеджера или используем ID главного администратора
+            manager_id = context.bot_data.get('manager_id', ADMIN)
+
+            # Отправляем заявку менеджеру или главному администратору
+            await context.bot.send_message(
+                chat_id=manager_id,
+                text=f"Новая заявка от клиента категории {lead_category}.\n" +
+                     f"Модель авто: {car_model}\n" +
+                     f"Бюджет: {car_budget}\n" +
+                     f"Телефон: {phone_number}"
+            )
+
+            # Если менеджер не установлен, уведомляем главного администратора
+            if manager_id == ADMIN:
+                await context.bot.send_message(
+                    chat_id=ADMIN,
+                    text="Менеджер не установлен. Пожалуйста, настройте менеджера через команду /settingsBot."
+                )
+
             # Save data to CSV file that will be used later
             # by sellers
             with open('contacts.csv', mode='a', newline='', encoding='utf-8') as file:
@@ -100,7 +136,7 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
             # or just remove it after testing phase
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=f"Клиент категории {lead_category}.Вы заказали расчет стоимости авто {car_model} на бюджет {car_budget}. Ваш номер телефона: {phone_number}"
+                text="Ваша заявка была успешно отправлена менеджеру. Ожидайте ответа."
             )
 
             context.user_data['state'] = None
@@ -136,6 +172,16 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await command_avaliable(update, context)
     if query.data == 'link_to_your_channel':
         pass
+    if query.data == 'set_manager':
+        # Установка ID менеджера в состояние
+        context.bot_data['manager_id'] = query.from_user.id
+        context.user_data['state'] = 'awaiting_manager_id'
+        await context.bot.send_message(
+            chat_id=query.message.chat_id,
+            text="Пожалуйста, введите ID менеджера (целое число):\n\n"+\
+                 "Для этого менеджер должен узнать свой ID и сообщить его вам\n\n"+\
+                 "Узнать ID можно тут @getidsbot"
+        )
     if query.data in ['request_hot_lead', 'request_warm_lead']:
         await handle_order(update, context)
     if query.data == "faq_1":
@@ -178,10 +224,12 @@ if __name__ == '__main__':
     avaliable_handler = CommandHandler('avaliable', command_avaliable)
     request_handler = CommandHandler('request', command_request)
     qa_handler = CommandHandler('qa', command_qa)
+    settings_bot_handler = CommandHandler('settingsBot', settings_bot)
     text_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, text_input_handler)
     contact_handler = MessageHandler(filters.CONTACT, contact_input_handler)
     application.add_handler(contact_handler)
     application.add_handler(text_handler)
+    application.add_handler(settings_bot_handler)
     application.add_handler(start_handler)
     application.add_handler(qa_handler)
     application.add_handler(avaliable_handler)
