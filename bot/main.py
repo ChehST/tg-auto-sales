@@ -127,7 +127,7 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
 
             # Save data to CSV file that will be used later
             # by sellers
-            with open('contacts.csv', mode='a', newline='', encoding='utf-8') as file:
+            with open('/var/autoBot/contacts.csv', mode='a', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
                 writer.writerow([lead_category, car_model, car_budget, phone_number])
 
