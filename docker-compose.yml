@@ -7,10 +7,10 @@ services:
       - /var/autoBot:/var/autoBot
     ports:
       - "8080:8080"
-    environment:
-      - TOKEN_BOT=${BOT_TOKEN}
-      - KOSVLAS=${KOSVLAS}
     env_file:
       - /etc/autoBot/.prod_env
+    # environment:
+    #   - TOKEN_BOT=${BOT_TOKEN}
+    #   - KOSVLAS=${KOSVLAS}
 
 # add here .prod_env to load ENVIRONMENT = production
