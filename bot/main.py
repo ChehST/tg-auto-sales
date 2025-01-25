@@ -1,6 +1,5 @@
 import os
 import logging
-import time
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -12,14 +11,12 @@ from telegram.ext import (
     CallbackQueryHandler
 )
 from dotenv import load_dotenv
+load_dotenv()
 import csv
 
-# Load environment variables from .env file
-load_dotenv()
 
 from commands import *
 from config import ADMIN
-
 
 
 logging.basicConfig(
@@ -182,7 +179,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                  "Для этого менеджер должен узнать свой ID и сообщить его вам\n\n"+\
                  "Узнать ID можно тут @getidsbot"
         )
-    if query.data in ['request_hot_lead', 'request_warm_lead']:
+    if query.data in ['HotLead', 'WarmLead']:
         await handle_order(update, context)
     if query.data == "faq_1":
         await context.bot.send_message(chat_id=query.message.chat_id,
