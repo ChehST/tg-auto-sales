@@ -1,0 +1,14 @@
+services:
+  service-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - /var/autoBot:/var/autoBot
+    ports:
+      - "8080:8080"
+    environment:
+      - TOKEN_BOT=${BOT_TOKEN}
+      - KOSVLAS=${KOSVLAS}
+
+# add here .prod_env to load ENVIRONMENT = production

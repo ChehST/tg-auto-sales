@@ -2,7 +2,12 @@
 # Use the official Python image from the Docker Hub
 FROM python:3.9-slim
 
+# Создаем директорию
+RUN mkdir -p /var/autoBot
+# Устанавливаем права на запись
+RUN chmod 777 /var/autoBot
 # Set the working directory in the container
+
 WORKDIR /service-bot
 
 # Copy the requirements file into the container
@@ -13,10 +18,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container
 COPY . .
-
-# Set the bot token as an environment variable
-ARG BOT_TOKEN
-ENV TOKEN_BOT=$BOT_TOKEN
 
 # Expose the port the app runs on
 EXPOSE 8080

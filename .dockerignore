@@ -1,0 +1,17 @@
+.gitignore
+.gitmodules
+.idea/
+*.iml
+target/
+.DS_Store
+.github/
+.venv/
+.vscode/
+.env
+contacts.csv
+docker-compose.yml
+dockerfile
+Dockerfile
+README.md
+LICENSE
+.git/
