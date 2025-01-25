@@ -9,6 +9,6 @@ services:
       - "8080:8080"
     environment:
       - TOKEN_BOT=${BOT_TOKEN}
-      - KOSVLAS==${KOSVLAS}
+      - KOSVLAS=${KOSVLAS}
 
 # add here .prod_env to load ENVIRONMENT = production
