@@ -9,8 +9,3 @@ services:
       - "8080:8080"
     env_file:
       - /etc/autoBot/.prod_env
-    # environment:
-    #   - TOKEN_BOT=${BOT_TOKEN}
-    #   - KOSVLAS=${KOSVLAS}
-
-# add here .prod_env to load ENVIRONMENT = production

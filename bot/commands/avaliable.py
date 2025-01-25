@@ -1,7 +1,8 @@
-
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup,Update
-from telegram.ext import CallbackContext, CommandHandler,ContextTypes
+from telegram.ext import ContextTypes
+
 from constants.messages import AVAILABLE_MESSAGE
+
 
 async def command_avaliable(update: Update, context: ContextTypes.DEFAULT_TYPE):
 

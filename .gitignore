@@ -10,7 +10,6 @@ dist/
 __pycache__/
 *.pyc
 
-# Ignore all .DS_Store files
 .DS_Store
 
 

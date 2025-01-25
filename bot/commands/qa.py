@@ -1,8 +1,8 @@
-
-from telegram import (ReplyKeyboardRemove, ReplyKeyboardMarkup,
-                      InlineKeyboardButton, InlineKeyboardMarkup,
+from telegram import (InlineKeyboardButton,
+                      InlineKeyboardMarkup,
                       Update)
-from telegram.ext import CommandHandler, MessageHandler, ContextTypes
+from telegram.ext import  ContextTypes
+
 from constants.messages import QA_MESSAGE
 
 
