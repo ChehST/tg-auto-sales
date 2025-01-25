@@ -10,5 +10,7 @@ services:
     environment:
       - TOKEN_BOT=${BOT_TOKEN}
       - KOSVLAS=${KOSVLAS}
+    env_file:
+      - /etc/autoBot/.prod_env
 
 # add here .prod_env to load ENVIRONMENT = production
