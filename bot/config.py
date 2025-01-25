@@ -6,7 +6,7 @@ class Config():
         pass
 
     def get_admins(self) -> int:
-        if os.environ.get('ENVIRONMENT') == 'developement':
+        if os.environ.get('ENVIRONMENT') == 'production':
             return int(os.getenv('CHEH'))
         else:
             return int(os.getenv('KOSVLAS'))
