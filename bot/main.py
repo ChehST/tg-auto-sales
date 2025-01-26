@@ -44,7 +44,7 @@ async def text_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     state = context.user_data.get('state')
 
     button = [[KeyboardButton("✅Получить расчёт",request_contact=True)]]
-    reply_markup = ReplyKeyboardMarkup(button,resize_keyboard=True)
+    reply_markup = ReplyKeyboardMarkup(button)
 
     if state == 'awaiting_car_model':
         car_model = update.message.text
