@@ -95,13 +95,16 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
     if context.user_data.get('state') == 'awaiting_phone_number':
         contact = update.message.contact
         if contact:
-            phone_number = contact.phone_number
+            phone_number : str | None  = contact.phone_number
             context.user_data['phone'] = phone_number
 
             # Send final message with all collected information
-            car_model = context.user_data.get('car_model')
-            car_budget = context.user_data.get('car_budget')
-            lead_category = context.user_data.get('lead_category')
+            username : str = update.effective_user.username
+            user_name : str = update.effective_user.first_name
+            car_model : str = context.user_data.get('car_model')
+            car_budget : int = context.user_data.get('car_budget')
+            lead_category : str = context.user_data.get('lead_category')
+            user_comment : str | None
 
 
             # Получаем ID менеджера или используем ID главного администратора
@@ -129,7 +132,19 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
                 writer = csv.writer(file)
                 # create timestamp field in format dd/mm/yyyy hh:mm
                 creation_time = time.strftime("%d/%m/%Y %H:%M")
-                writer.writerow([creation_time,lead_category, car_model, car_budget, phone_number])
+                user_comment = None
+                writer.writerow(
+                    [
+                        creation_time,
+                        username,
+                        phone_number,
+                        user_name,
+                        car_model,
+                        car_budget,
+                        lead_category,
+                        user_comment,
+                    ]
+                )
 
             # Debug output, it might be good to create ticket to add
             # flag DEBUG_MODE to print this info into log file instead of console
@@ -140,6 +155,7 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
             )
 
             context.user_data['state'] = None
+        # here impliment if phone number would not be provided #34
 
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
