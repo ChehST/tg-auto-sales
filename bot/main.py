@@ -59,24 +59,24 @@ async def text_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 "⚠️ Не пишите слова или знаки валют, только числа.\n" + \
                 "(примеры: 2000000, 3500000, 4300000)"
         )
-
     elif state == 'awaiting_car_budget':
         # Обработка следующего этапа
 
         car_budget = update.message.text
         context.user_data['car_budget'] = car_budget
-        context.user_data['state'] = 'awaiting_phone_number'  # Завершение последовательности
+        context.user_data['state'] = 'awaiting_lead_prepare'  # Завершение последовательности
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="😊 Остался последний шаг!\n\n" + \
                     'Нажмите кнопку "Получить расчёт",' + \
-                    ' и мы отправим вам стоимость в мессенджеры или перезвоним.\n\n' + \
+                    'и мы вам перезвоним.\n' +\
+                    'или напишите в ответ на это сообщение свои коментарии и вопросы и с вами свяжутся в чате!\n' + \
                     "Хотите написать сами?\n"
-                    "👉 Связаться с экспертом:",
+                    "👉 Связаться с экспертом: @KosVlasov",
                     reply_markup=reply_markup
         )
     
-    if state == 'awaiting_manager_id':
+    elif state == 'awaiting_manager_id':
         try:
             manager_id = int(update.message.text)
             context.bot_data['manager_id'] = manager_id
@@ -85,16 +85,85 @@ async def text_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
                 chat_id=update.effective_chat.id,
                 text=f"ID менеджера успешно установлен: {manager_id}"
             )
-        except ValueError:
+        except ValueError as e:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text="Ошибка: Пожалуйста, введите корректное целое число."
             )
+            logging.error(f"Error while processing phone number: {str(e)}")
+            print('newVar')
+    elif state == 'awaiting_lead_prepare':
+        message = update.message.text
+        phone_number : str | None  = None
+        # Send final message with all collected information
+        username : str = update.effective_user.username
+        user_name : str = update.effective_user.first_name
+        car_model : str = context.user_data.get('car_model')
+        car_budget : int = context.user_data.get('car_budget')
+        lead_category : str = context.user_data.get('lead_category')
+        user_comment : str | None = message
+
+
+        # Получаем ID менеджера или используем ID главного администратора
+        manager_id = context.bot_data.get('manager_id', ADMIN)
+
+        # Отправляем заявку менеджеру или главному администратору
+        await context.bot.send_message(
+            chat_id=manager_id,
+            text=f"Новая заявка от клиента категории {lead_category}.\n" +
+                 f"Модель авто: {car_model}\n" +
+                 f"Бюджет: {car_budget}\n" +
+                 f"Телефон: {phone_number}"
+        )
+
+        # Если менеджер не установлен, уведомляем главного администратора
+        if manager_id == ADMIN:
+            await context.bot.send_message(
+                chat_id=ADMIN,
+                text="Менеджер не установлен. Пожалуйста, настройте менеджера через команду /settingsBot."
+            )
+
+        # Save data to CSV file that will be used later
+        # by sellers
+        with open('/var/autoBot/contacts.csv', mode='a', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            # create timestamp field in format dd/mm/yyyy hh:mm
+            creation_time = time.strftime("%d/%m/%Y %H:%M")
+            writer.writerow(
+                [
+                    creation_time,
+                    username,
+                    phone_number,
+                    user_name,
+                    car_model,
+                    car_budget,
+                    lead_category,
+                    user_comment,
+                ]
+            )
+
+        # Debug output, it might be good to create ticket to add
+        # flag DEBUG_MODE to print this info into log file instead of console
+        # or just remove it after testing phase
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Ваша заявка была успешно отправлена менеджеру. Ожидайте ответа."
+        )
+
+        context.user_data['state'] = None
+    
 
 async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if context.user_data.get('state') == 'awaiting_phone_number':
+    if context.user_data.get('state') == 'awaiting_lead_prepare':
+        # тут мы получаем нужно обработать введенное сообщение, и в зависимости от того является ли это контактом
+        # или нет, отправить сообщение с данными или запросить ввести номер телефона
+        # то есть мы ввели номер телефона некоректно, то мы введенный текст регистрирует как user_comment
+        # и phone ставим в None
+        
+
         contact = update.message.contact
-        if contact:
+        phone_numIs = contact.phone_number if contact else None
+        if phone_numIs:
             phone_number : str | None  = contact.phone_number
             context.user_data['phone'] = phone_number
 
@@ -241,14 +310,15 @@ if __name__ == '__main__':
     request_handler = CommandHandler('request', command_request)
     qa_handler = CommandHandler('qa', command_qa)
     settings_bot_handler = CommandHandler('settingsBot', settings_bot)
-    text_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, text_input_handler)
-    contact_handler = MessageHandler(filters.CONTACT, contact_input_handler)
-    application.add_handler(contact_handler)
-    application.add_handler(text_handler)
+    
     application.add_handler(settings_bot_handler)
     application.add_handler(start_handler)
     application.add_handler(qa_handler)
     application.add_handler(avaliable_handler)
     application.add_handler(request_handler)
+    text_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, text_input_handler)
+    contact_handler = MessageHandler(filters.CONTACT, contact_input_handler)
+    application.add_handler(contact_handler)
+    application.add_handler(text_handler)
     application.add_handler(CallbackQueryHandler(button_callback))
     application.run_polling()
