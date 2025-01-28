@@ -1,5 +1,6 @@
 import os
 import logging
+import time
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, Update
 from telegram.ext import (
@@ -126,7 +127,9 @@ async def contact_input_handler(update: Update, context: ContextTypes.DEFAULT_TY
             # by sellers
             with open('/var/autoBot/contacts.csv', mode='a', newline='', encoding='utf-8') as file:
                 writer = csv.writer(file)
-                writer.writerow([lead_category, car_model, car_budget, phone_number])
+                # create timestamp field in format dd/mm/yyyy hh:mm
+                creation_time = time.strftime("%d/%m/%Y %H:%M")
+                writer.writerow([creation_time,lead_category, car_model, car_budget, phone_number])
 
             # Debug output, it might be good to create ticket to add
             # flag DEBUG_MODE to print this info into log file instead of console
