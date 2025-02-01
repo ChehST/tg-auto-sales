@@ -254,8 +254,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # #37-turn-off-selection-command 
     # if query.data == 'selection':
     #     pass
-    if query.data == 'avaliable':
-        await command_avaliable(update, context)
+    if query.data == 'available':
+        await command_available(update, context)
     if query.data == 'link_to_your_channel':
         pass
     if query.data == 'set_manager':
@@ -307,7 +307,7 @@ if __name__ == '__main__':
     application = ApplicationBuilder().token(os.getenv('TOKEN_BOT')).build()
     
     start_handler = CommandHandler('start', command_start)
-    avaliable_handler = CommandHandler('avaliable', command_avaliable)
+    available_handler = CommandHandler('available', command_available)
     request_handler = CommandHandler('request', command_request)
     qa_handler = CommandHandler('qa', command_qa)
     settings_bot_handler = CommandHandler('settingsBot', settings_bot)
@@ -315,7 +315,7 @@ if __name__ == '__main__':
     application.add_handler(settings_bot_handler)
     application.add_handler(start_handler)
     application.add_handler(qa_handler)
-    application.add_handler(avaliable_handler)
+    application.add_handler(available_handler)
     application.add_handler(request_handler)
     text_handler = MessageHandler(filters.TEXT & ~filters.COMMAND, text_input_handler)
     contact_handler = MessageHandler(filters.CONTACT, contact_input_handler)
