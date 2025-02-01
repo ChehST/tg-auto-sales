@@ -251,8 +251,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await command_request(update, context)
     if query.data == "qa":
         await command_qa(update, context)
-    if query.data == 'selection':
-        pass
+    # #37-turn-off-selection-command 
+    # if query.data == 'selection':
+    #     pass
     if query.data == 'avaliable':
         await command_avaliable(update, context)
     if query.data == 'link_to_your_channel':
