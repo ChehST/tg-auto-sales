@@ -11,7 +11,9 @@ async def render_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = []
     keyboard.append([InlineKeyboardButton("Расчитать стоимость авто", callback_data="request")])
-    keyboard.append([InlineKeyboardButton("Подобрать по параметрам", callback_data="selection")])
+    # 37-turn-off-selection-command
+    # keyboard.append([InlineKeyboardButton("Подобрать по параметрам", callback_data="selection")])
+    # also turnoff in main file related callback
     keyboard.append([InlineKeyboardButton("Авто в наличии", callback_data="avaliable")])
     reply_markup = InlineKeyboardMarkup(keyboard)
     

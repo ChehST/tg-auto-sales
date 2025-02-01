@@ -4,7 +4,7 @@ from telegram.ext import ContextTypes
 from constants.messages import AVAILABLE_MESSAGE
 
 
-async def command_avaliable(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def command_available(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = []
     keyboard.append([InlineKeyboardButton("Авто в наличии", callback_data="link_to_your_channel")])
